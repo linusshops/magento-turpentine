@@ -21,41 +21,116 @@
 
 class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
     /**
-     * Handle log* functions
+     * Logs errors
      *
-     * @param  string $name
-     * @param  array $args
-     * @return mixed
+     * @param $message
+     * @return string
      */
-    public function __call( $name, $args ) {
-        if( substr( $name, 0, 3 ) === 'log' ) {
-            try {
-                $message = vsprintf( @$args[0], @array_slice( $args, 1 ) );
-            } catch( Exception $e ) {
-                return parent::__call( $name, $args );
-            }
-            switch( substr( $name, 3 ) ) {
-                case 'Error':
-                    return $this->_log( Zend_Log::ERR, $message );
-                case 'Warn':
-                    return $this->_log( Zend_Log::WARN, $message );
-                case 'Notice':
-                    return $this->_log( Zend_Log::NOTICE, $message );
-                case 'Info':
-                    return $this->_log( Zend_Log::INFO, $message );
-                case 'Debug':
-                    if( Mage::helper( 'turpentine/varnish' )
-                            ->getVarnishDebugEnabled() ) {
-                        return $this->_log( Zend_Log::DEBUG, $message );
-                    } else {
-                        return;
-                    }
-                default:
-                    break;
-            }
+    public function logError($message)
+    {
+        if (func_num_args() > 1) {
+            $message = $this->_prepareLogMessage(func_get_args());
         }
-        // return parent::__call( $name, $args );
-        return null;
+
+        return $this->_log(Zend_Log::ERR, $message);
+    }
+
+    /**
+     * Logs warnings
+     *
+     * @param $message
+     * @return string
+     */
+    public function logWarn($message)
+    {
+        if (func_num_args() > 1) {
+            $message = $this->_prepareLogMessage(func_get_args());
+        }
+
+        return $this->_log(Zend_Log::WARN, $message);
+    }
+
+    /**
+     * Logs notices
+     *
+     * @param $message
+     * @return string
+     */
+    public function logNotice($message)
+    {
+        if (func_num_args() > 1) {
+            $message = $this->_prepareLogMessage(func_get_args());
+        }
+
+        return $this->_log(Zend_Log::NOTICE, $message);
+    }
+
+    /**
+     * Logs info.
+     *
+     * @param $message
+     * @return string
+     */
+    public function logInfo($message)
+    {
+        if (func_num_args() > 1) {
+            $message = $this->_prepareLogMessage(func_get_args());
+        }
+
+        return $this->_log(Zend_Log::INFO, $message);
+    }
+
+    /**
+     * Logs debug.
+     *
+     * @param $message
+     * @return string
+     */
+    public function logDebug($message)
+    {
+        if ( ! Mage::helper('turpentine/varnish')->getVarnishDebugEnabled()) {
+            return;
+        }
+
+        if (func_num_args() > 1) {
+            $message = $this->_prepareLogMessage(func_get_args());
+        }
+
+        return $this->_log(Zend_Log::DEBUG, $message);
+    }
+
+    /**
+     * Prepares advanced log message.
+     *
+     * @param array $args
+     * @return string
+     */
+    protected function _prepareLogMessage(array $args)
+    {
+        $pattern = $args[0];
+        $substitutes = array_slice($args, 1);
+
+        if ( ! $this->_validatePattern($pattern, $substitutes)) {
+            return $pattern;
+        }
+
+        return vsprintf($pattern, $substitutes);
+    }
+
+    /**
+     * Validates string and attributes for substitution as per sprintf function.
+     *
+     * NOTE: this could be implemented as shown at
+     * http://stackoverflow.com/questions/2053664/how-to-check-that-vsprintf-has-the-correct-number-of-arguments-before-running
+     * although IMHO it's too time consuming to validate the patterns.
+     *
+     * @param string $pattern
+     * @param array $arguments
+     * @return bool
+     */
+    protected function _validatePattern($pattern, $arguments)
+    {
+        return true;
     }
 
     /**
@@ -63,12 +138,12 @@ class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
      *
      * @param mixed $value
      */
-    public function dump( $value ) {
-        Mage::register( 'turpentine_nocache_flag', true, true );
-        $this->logValue( $value );
-        echo '<pre>' . PHP_EOL;
-        var_dump( $value );
-        echo '</pre>' . PHP_EOL;
+    public function dump($value) {
+        Mage::register('turpentine_nocache_flag', true, true);
+        $this->logValue($value);
+        echo '<pre>'.PHP_EOL;
+        var_dump($value);
+        echo '</pre>'.PHP_EOL;
     }
 
     /**
@@ -78,52 +153,51 @@ class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
      * @param  mixed  ...
      * @return null
      */
-    public function log( $message ) {
+    public function log($message) {
         $args = func_get_args();
-        return call_user_func_array( array( $this, 'logDebug' ), $args );
+        return call_user_func_array(array($this, 'logDebug'), $args);
     }
 
     /**
      * Log a backtrace, can pass a already generated backtrace to use
      *
-     * @param  array $backTrace=null
+     * @param  array $backTrace
      * @return null
      */
-    public function logBackTrace( $backTrace=null ) {
-        if( is_null( $backTrace ) ) {
+    public function logBackTrace($backTrace = null) {
+        if (is_null($backTrace)) {
             $backTrace = debug_backtrace();
-            array_shift( $backTrace );
+            array_shift($backTrace);
         }
-        $btuuid = Mage::helper( 'turpentine/data' )->generateUuid();
-        $this->log( 'TRACEBACK: START ** %s **', $btuuid );
-        $this->log( 'TRACEBACK: URL: %s', $_SERVER['REQUEST_URI'] );
-        for( $i=0; $i < count($backTrace); $i++ ) {
+        $btuuid = Mage::helper('turpentine/data')->generateUuid();
+        $this->log('TRACEBACK: START ** %s **', $btuuid);
+        $this->log('TRACEBACK: URL: %s', $_SERVER['REQUEST_URI']);
+        for ($i = 0; $i < count($backTrace); $i++) {
             $line = $backTrace[$i];
-            $this->log( 'TRACEBACK: #%02d: %s:%d',
-                $i, $line['file'], $line['line'] );
-            $this->log( 'TRACEBACK: ==> %s%s%s(%s)',
-                (is_object( @$line['object'] ) ?
-                    get_class( $line['object'] ) : @$line['class'] ),
+            $this->log('TRACEBACK: #%02d: %s:%d',
+                $i, $line['file'], $line['line']);
+            $this->log('TRACEBACK: ==> %s%s%s(%s)',
+                (is_object(@$line['object']) ?
+                    get_class($line['object']) : @$line['class']),
                 @$line['type'],
                 $line['function'],
-                $this->_backtrace_formatArgs( $line['args'] ) );
+                $this->_backtrace_formatArgs($line['args']));
         }
-        $this->log( 'TRACEBACK: END ** %s **', $btuuid );
+        $this->log('TRACEBACK: END ** %s **', $btuuid);
     }
 
     /**
      * Like var_dump to the log
      *
      * @param  mixed $value
-     * @param  string $name=null
      * @return null
      */
-    public function logValue( $value, $name=null ) {
-        if( is_null( $name ) ) {
+    public function logValue($value, $name = null) {
+        if (is_null($name)) {
             $name = 'VALUE';
         }
-        $this->log( '%s => %s', $name,
-            $this->_backtrace_formatArgsHelper( $value ) );
+        $this->log('%s => %s', $name,
+            $this->_backtrace_formatArgsHelper($value));
     }
 
     /**
@@ -133,10 +207,39 @@ class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
      * @param  string $message
      * @return string
      */
-    protected function _log( $level, $message ) {
-        $message = 'TURPENTINE: ' . $message;
-        Mage::log( $message, $level );
+    protected function _log($level, $message) {
+        $message = 'TURPENTINE: '.$message;
+        Mage::log($message, $level, $this->_getLogFileName());
         return $message;
+    }
+
+    /**
+     * Get the name of the log file to use
+     * @return string
+     */
+    protected function _getLogFileName() {
+        if ($this->useCustomLogFile()) {
+            return $this->getCustomLogFileName();
+        }
+        return '';
+    }
+
+    /**
+     * Check if custom log file should be used
+     * @return bool
+     */
+    public function useCustomLogFile() {
+        return Mage::getStoreConfigFlag(
+            'turpentine_varnish/logging/use_custom_log_file' );
+    }
+
+    /**
+     * Get custom log file name
+     * @return string
+     */
+    public function getCustomLogFileName() {
+        return (string) Mage::getStoreConfig(
+            'turpentine_varnish/logging/custom_log_file_name' );
     }
 
     /**
@@ -145,10 +248,10 @@ class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
      * @param  array $args
      * @return string
      */
-    protected function _backtrace_formatArgs( $args ) {
-        return implode( ', ',
+    protected function _backtrace_formatArgs($args) {
+        return implode(', ',
             array_map(
-                array( $this, '_backtrace_formatArgsHelper' ),
+                array($this, '_backtrace_formatArgsHelper'),
                 $args
             )
         );
@@ -160,25 +263,25 @@ class Nexcessnet_Turpentine_Helper_Debug extends Mage_Core_Helper_Abstract {
      * @param  mixed $arg
      * @return null
      */
-    protected function _backtrace_formatArgsHelper( $arg ) {
+    protected function _backtrace_formatArgsHelper($arg) {
         $value = $arg;
-        if( is_object( $arg ) ) {
-            $value = sprintf( 'OBJECT(%s)', get_class( $arg ) );
-        } elseif( is_resource( $arg ) ) {
+        if (is_object($arg)) {
+            $value = sprintf('OBJECT(%s)', get_class($arg));
+        } elseif (is_resource($arg)) {
             $value = 'RESOURCE';
-        } elseif( is_array( $arg ) ) {
+        } elseif (is_array($arg)) {
             $value = 'ARRAY[%s](%s)';
             $c = array();
-            foreach( $arg as $k => $v ) {
-                $c[] = sprintf( '%s => %s', $k,
-                    $this->_backtrace_formatArgsHelper( $v ) );
+            foreach ($arg as $k => $v) {
+                $c[] = sprintf('%s => %s', $k,
+                    $this->_backtrace_formatArgsHelper($v));
             }
-            $value = sprintf( $value, count( $arg ), implode( ', ', $c ) );
-        } elseif( is_string( $arg ) ) {
-            $value = sprintf( '\'%s\'', $arg );
-        } elseif( is_bool( $arg ) ) {
+            $value = sprintf($value, count($arg), implode(', ', $c));
+        } elseif (is_string($arg)) {
+            $value = sprintf('\'%s\'', $arg);
+        } elseif (is_bool($arg)) {
             $value = $arg ? 'TRUE' : 'FALSE';
-        } elseif( is_null( $arg ) ) {
+        } elseif (is_null($arg)) {
             $value = 'NULL';
         }
         return $value;

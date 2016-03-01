@@ -372,3 +372,63 @@ Magento CE 1.8+ or EE 1.13+, see [these instructions](https://github.com/nexcess
   utility (@jeroenvermeulen)
   * [#536] Allow `//` (double slash) comments in VCL files and strip them when
   trimming whitespace (@eth8505)
+
+### RELEASE-0.6.2
+
+  * [#635] Fixed typos (@pborelli)  
+  * [#668] Replace short open tag (@XnS)
+  * [#721] Fix license according to SPDX (@ihor-sviziev)
+  * [#740] Do not return pipe for OPTIONS straight away (@ashsmith)
+  * [#598] Ensure POST request gets normalized data (@melvyn-sopacua)
+  * [#739] Ban CMS Page after a CMS Revision has been updated (@ashsmith)
+  * Added fix for community poll problems
+  * [#516] Fixes multiple sessions generated on first page visit (@jharrisonau)
+  * [#796] Ignore additional GET Parameters in Varnish Cache via Configuration (@thampe)
+  * [#626] Fix for dummy blocks not working (@jeroenvermeulen)
+  * [#719) Replace connect20/nexcessnet_turpentine package in composer.json (@ihor-sviziev)
+
+### RELEASE-0.6.3
+  * [#499] Use rewrite instead of local Session model for form key handling (@eth8505)  
+  * [#817] Damian/cache management extended. Added validations for EE and Full Page cache (@damian-pastorini)
+  * [#521] Fix for search input field on search results page (@jeroenvermeulen)
+  * Fix for recently viewed products block in CE 1.9.1 (Issue #801)
+  * [#522] Custom log file (issue #510) (@eth8505)
+  * [#836] Add OS X .DS_Store and nbproject to gitignore (@cbb7123)
+  * [#832] Fixed duplicated frontend cookie bug (@mabigo)
+  * [#527] Feature/admin clear specific page (@craigcarnell)
+  * [#838] Added customer_group access option to cache based on customer group (@pejoo)
+  * [#825] Fix messages returning a empty "ul" (@BarryCarlyon)
+  * [#826] Tweak logging for empty getNameInLayout (@BarryCarlyon)
+  * [#843] Check if path isset before using it (@craigcarnell) 
+  * Removed session generation code in VCL - see issue #345
+  * [#586] Updated debug helper (@magedev)
+  * [#848] Replace Nexcessnet_Turpentine_Model_Dummy_Request with Magento model (@craigcarnell)  
+  * [#849]  escape | character (@craigcarnell)
+  * Better escaping of double slashes in urls (for better hitrate) (@joolswills)
+  * [#860] Removing ref to nonexistent file from modman (@cgrice  )
+  * [#596] update docs to make an important notice on Crawler IP Addresses setting under Caching Options (@arosenhagen)
+  * [#878] Explicit cache bypass for progress sections (@astorm)
+  * [#844] Fix for HTTPS ESI URLs (@jeroenvermeulen)
+  * [#865] Implemented load balancing support (@jeroenvermeulen)
+
+### RELEASE-0.6.5
+  * Varnish 4 (@aheadley @aricwatson)
+
+### RELEASE-0.6.6
+  * [#923] DetermineVersion 3.0 to 3.0.3 bugfix (@timmuller)  
+  * [#945] Send unmodified url to the backend server (@thampe)  
+  * [#885] Add maintenance mode that will allow debug_ips through to visit the site, all other users get the landing page (@craigcarnell)  
+  * [#955] Include theme specific handles to ESI data (@LyndonHook)  
+  * [#972] Fixed bug with wrong return value of ->getSkinUrl() (@ceckoslab)
+
+### RELEASE-0.6.7
+  * [#951] Added 'disableEsiInjection' ESI policy option.  
+  * [#1005]  Invalidating cms pages with url enging with slash. (@sivaschenko)  
+  * [#1020] Add the form key to wishlist submit to prevent 403 errors. (@paulpartington)
+  * [#1036] Prime Checkout and Light Checkout Compatibility. (@sprankhub)
+  * [#1050] Use Simple Hash" option for static files. (@jeroenvermeulen) 
+  * [#1031] Improved helper function getModelName(). (@jeroenvermeulen) 
+  * [#1066] Fix for crawler lock problem with CM_RedisSession. (@jeroenvermeulen)
+
+### RELEASE-0.6.8
+  * [#1065] Added ESI policy for cookie notice block. (@aricwatson)
